@@ -1,0 +1,13 @@
+#ifndef GRADEBOOK_H
+#define GRADEBOOK_H
+
+#include <vector>
+#include "student.h"
+
+void addStudent(std::vector<Student>& students);
+void addGrades(std::vector<Student>& students);
+void displayStudents(const std::vector<Student>& students);
+double calculateAverageExcludingLowest(const std::vector<int>& grades);
+char letterGrade(double average);
+
+#endif
