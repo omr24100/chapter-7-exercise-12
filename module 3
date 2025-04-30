@@ -1,0 +1,40 @@
+#include <iostream>
+#include "gradebook.h"
+
+using namespace std;
+
+int main() {
+    vector<Student> students;
+    int choice;
+
+    do {
+        cout << "\n--- Grade Book Menu ---\n";
+        cout << "1. Add Student\n";
+        cout << "2. Add Grades\n";
+        cout << "3. Display Students and Grades\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Flush newline
+
+        switch (choice) {
+            case 1:
+                addStudent(students);
+                break;
+            case 2:
+                addGrades(students);
+                break;
+            case 3:
+                displayStudents(students);
+                break;
+            case 4:
+                cout << "Exiting program.\n";
+                break;
+            default:
+                cout << "Invalid choice. Try again.\n";
+        }
+
+    } while (choice != 4);
+
+    return 0;
+}
