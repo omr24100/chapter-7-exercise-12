@@ -1,0 +1,54 @@
+#include "Gradebook.h"
+#include <iostream>
+#include <numeric>
+
+using namespace std;
+
+void Gradebook::addStudent(const string& name) {
+    if (studentGrades.find(name) == studentGrades.end()) {
+        studentGrades[name] = {};
+        cout << "Student '" << name << "' added.\n";
+    } else {
+        cout << "Student already exists.\n";
+    }
+}
+
+void Gradebook::addGrade(const string& name, double grade) {
+    if (studentGrades.find(name) != studentGrades.end()) {
+        studentGrades[name].push_back(grade);
+        cout << "Grade added for " << name << ".\n";
+    } else {
+        cout << "Student not found.\n";
+    }
+}
+
+void Gradebook::changeGrade(const string& name, int index, double newGrade) {
+    if (studentGrades.find(name) != studentGrades.end()) {
+        if (index >= 0 && index < studentGrades[name].size()) {
+            studentGrades[name][index] = newGrade;
+            cout << "Grade updated.\n";
+        } else {
+            cout << "Invalid grade index.\n";
+        }
+    } else {
+        cout << "Student not found.\n";
+    }
+}
+
+void Gradebook::displayGrades() const {
+    if (studentGrades.empty()) {
+        cout << "No students to display.\n";
+        return;
+    }
+
+    for (const auto& pair : studentGrades) {
+        const string& name = pair.first;
+        const vector<double>& grades = pair.second;
+        cout << "Student: " << name << " | Grades: ";
+        for (double g : grades) {
+            cout << g << " ";
+        }
+        double avg = grades.empty() ? 0 : accumulate(grades.begin(), grades.end(), 0.0) / grades.size();
+        cout << "| Final Grade: " << avg << "\n";
+    }
+}
