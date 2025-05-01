@@ -3,167 +3,152 @@
 /*
 File Name:Chapter 7 exercise 12
 Programmer: Olivia Ruiz
+Date: 5/1/25
 Requirements: Gradebook book application that gives the user the option to add
-students, add grades, display the student name and the final grade as well. 
-*/
-
+students, add grades, display the student name and the final grade as well. Make sure you can add more grades into the code. 
 #include <iostream>
-#include <vector>
-#include <limits>
-#include <algorithm>
 #include <string>
+#include <vector>
+#include <map>
+#include <numeric> // for accumulate
+#include <limits>  // for input validation
 
 using namespace std;
 
-const int MAX_STUDENTS = 100;
-const int MAX_GRADE = 100;
-const int MIN_GRADE = 0;
+class Gradebook {
+private:
+    map<string, vector<double>> studentGrades;
 
-struct Student {
-    string name;
-    vector<int> grades;
+public:
+    void addStudent(const string& name) {
+        if (studentGrades.find(name) == studentGrades.end()) {
+            studentGrades[name] = {};
+            cout << "Student '" << name << "' added.\n";
+        } else {
+            cout << "Student already exists.\n";
+        }
+    }
+
+    void addGrade(const string& name, double grade) {
+        if (studentGrades.find(name) != studentGrades.end()) {
+            studentGrades[name].push_back(grade);
+            cout << "Grade added for " << name << ".\n";
+        } else {
+            cout << "Student not found.\n";
+        }
+    }
+
+    void changeGrade(const string& name, int index, double newGrade) {
+        if (studentGrades.find(name) != studentGrades.end()) {
+            if (index >= 0 && index < studentGrades[name].size()) {
+                studentGrades[name][index] = newGrade;
+                cout << "Grade updated.\n";
+            } else {
+                cout << "Invalid grade index.\n";
+            }
+        } else {
+            cout << "Student not found.\n";
+        }
+    }
+
+    void displayGrades() const {
+        if (studentGrades.empty()) {
+            cout << "No students to display.\n";
+            return;
+        }
+
+        for (const auto& pair : studentGrades) {
+            const string& name = pair.first;
+            const vector<double>& grades = pair.second;
+            cout << "Student: " << name << " | Grades: ";
+            for (double g : grades) {
+                cout << g << " ";
+            }
+            double avg = grades.empty() ? 0 : accumulate(grades.begin(), grades.end(), 0.0) / grades.size();
+            cout << "| Final Grade: " << avg << "\n";
+        }
+    }
 };
 
-
-void addStudent(vector<Student>& students);
-void addGrades(vector<Student>& students);
-void displayStudents(const vector<Student>& students);
-double calculateAverageExcludingLowest(const vector<int>& grades);
-char letterGrade(double average);
-
-int main() {
-    vector<Student> students;
-    int choice;
-
-    do {
-        cout << "\n--- Grade Book Menu ---\n";
-        cout << "1. Add Student\n";
-        cout << "2. Add Grades\n";
-        cout << "3. Display Students and Grades\n";
-        cout << "4. Exit\n";
-        cout << "Enter your choice: ";
-        cin >> choice;
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-
-        switch (choice) {
-        case 1:
-            addStudent(students);
-            break;
-        case 2:
-            addGrades(students);
-            break;
-        case 3:
-            displayStudents(students);
-            break;
-        case 4:
-            cout << "Exiting program.\n";
-            break;
-        default:
-            cout << "Invalid choice. Try again.\n";
-        }
-
-    } while (choice != 4);
-
-    return 0;
-}
-
-void addStudent(vector<Student>& students) {
-    if (students.size() >= MAX_STUDENTS) {
-        cout << "Cannot add more students. Maximum limit reached.\n";
-        return;
-    }
-
-    string name;
-    cout << "Enter student name (or type 'done' to stop): ";
-    getline(cin, name);
-
-    while (name != "done" && students.size() < MAX_STUDENTS) {
-        Student newStudent;
-        newStudent.name = name;
-        students.push_back(newStudent);
-
-        if (students.size() >= MAX_STUDENTS) {
-            cout << "Maximum number of students reached.\n";
-            break;
-        }
-
-        cout << "Enter student name (or type 'done' to stop): ";
-        getline(cin, name);
-    }
-}
-
-void addGrades(vector<Student>& students) {
-    if (students.empty()) {
-        cout << "No students available. Add students first.\n";
-        return;
-    }
-
-    for (size_t i = 0; i < students.size(); ++i) {
-        cout << "\nEnter grades for " << students[i].name << " (-1 to stop):\n";
-        int grade;
-        while (true) {
-            cout << "Grade: ";
-            cin >> grade;
-
-            if (grade == -1) break;
-            if (grade >= MIN_GRADE && grade <= MAX_GRADE) {
-                students[i].grades.push_back(grade);
-            }
-            else {
-                cout << "Invalid grade. Enter a value between 0 and 100.\n";
-            }
-        }
-    }
+void clearInput() {
+    cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-void displayStudents(const vector<Student>& students) {
-    if (students.empty()) {
-        cout << "No students to display.\n";
-        return;
-    }
+int main() {
+    Gradebook gb;
+    int choice;
 
-    for (const auto& student : students) {
-        cout << "\nStudent: " << student.name << "\nGrades: ";
+    do {
+        cout << "\nGradebook Menu:\n";
+        cout << "1. Add Student\n";
+        cout << "2. Add Grade\n";
+        cout << "3. Change Grade\n";
+        cout << "4. Display Grades\n";
+        cout << "5. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
 
-        if (student.grades.empty()) {
-            cout << "No grades entered.\n";
+        if (cin.fail()) {
+            clearInput();
+            cout << "Invalid input. Try again.\n";
             continue;
         }
 
-        for (int grade : student.grades) {
-            cout << grade << " ";
+        string name;
+        switch (choice) {
+            case 1:
+                cout << "Enter student name: ";
+                cin.ignore();
+                getline(cin, name);
+                gb.addStudent(name);
+                break;
+            case 2: {
+                cout << "Enter student name: ";
+                cin.ignore();
+                getline(cin, name);
+                double grade;
+                cout << "Enter grade: ";
+                cin >> grade;
+                if (cin.fail()) {
+                    clearInput();
+                    cout << "Invalid grade.\n";
+                } else {
+                    gb.addGrade(name, grade);
+                }
+                break;
+            }
+            case 3: {
+                cout << "Enter student name: ";
+                cin.ignore();
+                getline(cin, name);
+                int index;
+                double newGrade;
+                cout << "Enter grade index (starting at 0): ";
+                cin >> index;
+                cout << "Enter new grade: ";
+                cin >> newGrade;
+                if (cin.fail()) {
+                    clearInput();
+                    cout << "Invalid input.\n";
+                } else {
+                    gb.changeGrade(name, index, newGrade);
+                }
+                break;
+            }
+            case 4:
+                gb.displayGrades();
+                break;
+            case 5:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice.\n";
         }
 
-        double average = calculateAverageExcludingLowest(student.grades);
-        cout << "\nFinal Average (lowest grade dropped): " << average;
-        cout << "\nLetter Grade: " << letterGrade(average) << "\n";
-    }
-}
+    } while (choice != 5);
 
-double calculateAverageExcludingLowest(const vector<int>& grades) {
-    if (grades.empty()) return 0.0;
-    if (grades.size() == 1) return grades[0];
-
-    int sum = 0;
-    int lowest = grades[0];
-
-    for (int grade : grades) {
-        sum += grade;
-        if (grade < lowest) {
-            lowest = grade;
-        }
-    }
-
-    return static_cast<double>(sum - lowest) / (grades.size() - 1);
-}
-
-char letterGrade(double average) {
-    if (average >= 90) return 'A';
-    if (average >= 80) return 'B';
-    if (average >= 70) return 'C';
-    if (average >= 60) return 'D';
-    return 'F';
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
