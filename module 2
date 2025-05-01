@@ -1,0 +1,19 @@
+#ifndef GRADEBOOK_H
+#define GRADEBOOK_H
+
+#include <string>
+#include <vector>
+#include <map>
+
+class Gradebook {
+private:
+    std::map<std::string, std::vector<double>> studentGrades;
+
+public:
+    void addStudent(const std::string& name);
+    void addGrade(const std::string& name, double grade);
+    void changeGrade(const std::string& name, int index, double newGrade);
+    void displayGrades() const;
+};
+
+#endif // GRADEBOOK_H
